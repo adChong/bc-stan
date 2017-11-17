@@ -55,7 +55,7 @@ ptm <- proc.time()
 fit <- stan(file = "bayesCalib.stan", 
             data = stan_data, 
             iter = 500, 
-            chains = 2)
+            chains = 4)
 time <- proc.time() - ptm
 print(time)
 
