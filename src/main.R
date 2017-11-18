@@ -52,7 +52,7 @@ stan_data <- list(n=n, m=m, n_pred=n_pred, p=p, y=y, q=q, eta=eta,
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 ptm <- proc.time()
-fit <- stan(file = "bayesCalib.stan", 
+fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 
             chains = 4)
