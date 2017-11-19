@@ -90,7 +90,9 @@ model {
   }
 
   // diagonal elements of sigma_delta
-  sigma_delta = diag_matrix(rep_vector((1 / lambda_delta), n+n_pred));
+  sigma_delta = diag_matrix(rep_vector((1 / lambda_delta), 
+    n+n_pred));
+  
   // off-diagonal elements of sigma_delta
   for (i in 1:(n+n_pred-1)) {
     for (j in (i+1):(n+n_pred)) {

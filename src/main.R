@@ -48,16 +48,15 @@ stan_data <- list(n=n, m=m, n_pred=n_pred, p=p, y=y, q=q, eta=eta,
                   xf=as.matrix(xf), xc=as.matrix(xc), 
                   x_pred=as.matrix(x_pred), tc=as.matrix(tc))
 
-# run model in stan
+# set stan to execute multiple Markov chains in parallel
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
-ptm <- proc.time()
+
+# run model in stan
 fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 
             chains = 4)
-time <- proc.time() - ptm
-print(time)
 
 # plot traceplots, excluding warm-up
 stan_trace(fit, pars = c("tf", "beta_eta", "beta_delta", 
@@ -70,23 +69,26 @@ print(fit, pars = c("tf", "beta_eta", "beta_delta",
 # posterior probability distribution of tf
 stan_hist(fit, pars = c("tf"))
 
-# extract predictions, excluding warm-up
+# extract predictions, excluding warm-up and 
+# convert back to original scale
 samples <- rstan::extract(fit)
-y_pred <- samples$y_pred * eta_sd + eta_mu # convert to original scale
+y_pred <- samples$y_pred * eta_sd + eta_mu 
 n_samples <- nrow(y_pred)
 
 # for loop to visualize predictions at different input x
 for (i in (1:p)) {
-  field_data <- data.frame(yf = DATAFIELD[,1], xf = signif(DATAFIELD[,(i+1)],3))
-  pred_data <- matrix(data = t(y_pred), nrow = length(y_pred), ncol = 1)
-  plot_data <- data.frame(apply(field_data, 2, rep, n_samples),
-                          pred = pred_data)
+  field_data <- data.frame(yf=DATAFIELD[, 1], 
+                           xf=signif(DATAFIELD[, (i+1)], 3))
+  pred_data <- matrix(data=t(y_pred), 
+                      nrow=length(y_pred), ncol = 1)
+  plot_data <- data.frame(apply(field_data, 2, rep, 
+                                n_samples), pred = pred_data)
   # save plot as png file
   png(paste("plot", i, ".png", sep = ""))
   plt <- ggplot(data = plot_data, aes(y=pred, x=xf, group=xf)) +
-    geom_boxplot(outlier.size = 0.2) +
+    geom_boxplot(outlier.size=0.2) +
     geom_point(data = field_data, aes(x=xf, y=yf), 
-               color="#D55E00", size = 0.8) 
+               color="#D55E00", size=0.8) 
   print(plt)
   dev.off()
 }
