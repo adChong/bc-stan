@@ -5,9 +5,9 @@ bc-stan provides code for the Bayesian calibration of Building Energy Models usi
 Stan is portable across [many computing environments](http://mc-stan.org/users/interfaces/). Two interfaces, R ([main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R)) and Python (main.py) are provided here to interface with the stan models in this repository.
 
 ## Table of Contents
-1. [Prerequisits](Prerequisits)
-2. [Usage](Usage)
-3. [Documentation](Documentation)
+1. [Prerequisits](#Prerequisits)
+2. [Usage](#Usage)
+3. [Documentation](#Documentation)
 
 ## Prerequisits
 Install Stan and its required dependencies.
