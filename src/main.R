@@ -56,7 +56,7 @@ options(mc.cores = parallel::detectCores())
 fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 
-            chains = 4)
+            chains = 2)
 
 # plot traceplots, excluding warm-up
 stan_trace(fit, pars = c("tf", "beta_eta", "beta_delta", 
@@ -92,7 +92,6 @@ for (i in (1:p)) {
   print(plt)
   dev.off()
 }
-
 
 
 
