@@ -43,7 +43,7 @@ parameters {
   real<lower=0> lambda_eta; 
   real<lower=0> lambda_delta;
   real<lower=0> lambda_e; 
-  vector<lower=-3, upper=3>[n_pred] y_pred; 
+  vector[n_pred] y_pred; 
 }
 
 transformed parameters {
