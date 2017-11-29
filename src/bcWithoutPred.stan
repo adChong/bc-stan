@@ -40,9 +40,10 @@ parameters {
 }
 
 transformed parameters {
+  // beta_delta: correlation parameter for bias term
+  // beta_e: correlation parameter of observation error
   row_vector[p+q] beta_eta;
   row_vector[p] beta_delta;
-  // reparameterize beta_eta and beta_delta to [0, 1]
   beta_eta = -4.0 * log(rho_eta);
   beta_delta = -4.0 * log(rho_delta);
 }
@@ -70,7 +71,7 @@ model {
   // off-diagonal elements of sigma_eta
   for (i in 1:(N-1)) {
     for (j in (i+1):N) {
-      temp_eta = xt[i, 1:(p+q)] - xt[j, 1:(p+q)];
+      temp_eta = xt[i] - xt[j];
       sigma_eta[i, j] = beta_eta .* temp_eta * temp_eta';
       sigma_eta[i, j] = exp(-sigma_eta[i, j]) / lambda_eta;
       sigma_eta[j, i] = sigma_eta[i, j];
@@ -83,7 +84,7 @@ model {
   // off-diagonal elements of sigma_delta
   for (i in 1:(n-1)) {
     for (j in (i+1):n) {
-      temp_delta = xf[i, 1:p] - xf[j, 1:p];
+      temp_delta = xf[i] - xf[j];
       sigma_delta[i, j] = beta_delta .* temp_delta * temp_delta';
       sigma_delta[i, j] = exp(-sigma_delta[i, j]) / lambda_delta;
       sigma_delta[j, i] = sigma_delta[i, j];
@@ -98,15 +99,15 @@ model {
   sigma_z[1:n, 1:n] = sigma_eta[1:n, 1:n] + sigma_delta + sigma_y;
 
   // Specify priors here
-  for (i in 1:(p+q)){
-    rho_eta[i] ~ beta(1.0, 0.3); 
-  }
-  for (j in 1:p){
-    rho_delta[j] ~ beta(1.0, 0.3);
-  }
+  rho_eta[1:(p+q)] ~ beta(1.0, 0.3);
+
+  rho_delta[1:p] ~ beta(1.0, 0.3);
+
   lambda_eta ~ gamma(10, 10); // gamma (shape, rate)
-  lambda_delta ~ gamma(10, 0.3); 
-  lambda_e ~ gamma(10, 0.03); 
+
+  lambda_delta ~ gamma(10, 0.3); // gamma (shape, rate)
+  
+  lambda_e ~ gamma(10, 0.03); // gamma (shape, rate)
 
   L = cholesky_decompose(sigma_z); // cholesky decomposition
   z ~ multi_normal_cholesky(mu, L);

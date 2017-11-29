@@ -119,7 +119,7 @@ model {
     sigma_delta[(n+1):(n+n_pred), (n+1):(n+n_pred)];
 
   // Specify priors here
-  rho_eta[1:p+q] ~ beta(1.0, 0.3);
+  rho_eta[1:(p+q)] ~ beta(1.0, 0.3);
 
   rho_delta[1:p] ~ beta(1.0, 0.3);
 
