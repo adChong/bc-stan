@@ -120,14 +120,10 @@ model {
 
   // Specify priors here
   rho_eta[1:(p+q)] ~ beta(1.0, 0.3);
-
   rho_delta[1:p] ~ beta(1.0, 0.3);
-
   lambda_eta ~ gamma(10, 10); // gamma (shape, rate)
-
-  lambda_delta ~ gamma(10, 0.3); // gamma (shape, rate)
-  
-  lambda_e ~ gamma(10, 0.03); // gamma (shape, rate)
+  lambda_delta ~ gamma(10, 0.3); 
+  lambda_e ~ gamma(10, 0.03); 
 
   L = cholesky_decompose(sigma_z); // cholesky decomposition 
   z ~ multi_normal_cholesky(mu, L);
