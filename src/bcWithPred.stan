@@ -60,7 +60,6 @@ model {
   matrix[N, p+q] xt; 
   matrix[N, N] sigma_eta; // simulator covarinace
   matrix[n+n_pred, n+n_pred] sigma_delta; // bias term covariance
-  matrix[n, n] sigma_y; // observation errors
   matrix[N, N] sigma_z; // covariance matrix
   matrix[N, N] L; // cholesky decomposition of covariance matrix 
   vector[N] z; // z = [y, eta, y_pred]
@@ -104,19 +103,21 @@ model {
     }   
   }
 
-  // observation errors sigma_y
-  sigma_y = diag_matrix(rep_vector((1 / lambda_e), n));
-
   // computation of covariance matrix sigma_z 
   sigma_z = sigma_eta;
   sigma_z[1:n, 1:n] = sigma_eta[1:n, 1:n] + 
-    sigma_delta[1:n, 1:n] + sigma_y;
+    sigma_delta[1:n, 1:n];
   sigma_z[1:n, (n+m+1):N] = sigma_eta[1:n, (n+m+1):N] + 
     sigma_delta[1:n, (n+1):(n+n_pred)];
   sigma_z[(n+m+1):N, 1:n] = sigma_eta[(n+m+1):N, 1:n] + 
     sigma_delta[(n+1):(n+n_pred),1:n];
   sigma_z[(n+m+1):N, (n+m+1):N] = sigma_eta[(n+m+1):N, (n+m+1):N] + 
     sigma_delta[(n+1):(n+n_pred), (n+1):(n+n_pred)];
+
+  // add observation erros
+  for (i in 1:n) {
+    sigma_z[i, i] = sigma_z[i, i] + (1.0 / lambda_e);
+  }  
 
   // Specify priors here
   rho_eta[1:(p+q)] ~ beta(1.0, 0.3);
