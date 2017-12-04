@@ -53,7 +53,6 @@ model {
   matrix[N, (p+q)] xt;
   matrix[N, N] sigma_eta; // simulator covariance
   matrix[n, n] sigma_delta; // bias term covariance
-  matrix[n, n] sigma_y; // observation errors
   matrix[N, N] sigma_z; // covariance matrix
   matrix[N, N] L; // cholesky decomposition of covariance matrix 
   row_vector[p] temp_delta;
@@ -91,12 +90,14 @@ model {
     }   
   }
 
-  // observation errors sigma_y
-  sigma_y = diag_matrix(rep_vector((1.0 / lambda_e), n));
-
   // computation of covariance matrix sigma_z 
   sigma_z = sigma_eta;
-  sigma_z[1:n, 1:n] = sigma_eta[1:n, 1:n] + sigma_delta + sigma_y;
+  sigma_z[1:n, 1:n] = sigma_eta[1:n, 1:n] + sigma_delta;
+
+  // add observation errors
+  for (i in 1:n) {
+    sigma_z[i, i] = sigma_z[i, i] + (1.0 / lambda_e);
+  }  
 
   // Specify priors here
   rho_eta[1:(p+q)] ~ beta(1.0, 0.3);

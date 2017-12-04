@@ -26,7 +26,7 @@ transformed data {
     mu[i] = 0;
   }
   X = append_row(xf, x_pred);
-  y_eta = append_row(y, eta);
+  y_eta = append_row(y, eta); // y_eta = [y, eta]
 }
 
 parameters {
@@ -114,7 +114,7 @@ model {
   sigma_z[(n+m+1):N, (n+m+1):N] = sigma_eta[(n+m+1):N, (n+m+1):N] + 
     sigma_delta[(n+1):(n+n_pred), (n+1):(n+n_pred)];
 
-  // add observation erros
+  // add observation errors
   for (i in 1:n) {
     sigma_z[i, i] = sigma_z[i, i] + (1.0 / lambda_e);
   }  
