@@ -18,8 +18,9 @@ rep.row <- function(x, n){
 # Error Calculation ###########################################################
 
 cvrmse <- function(sim,obs){
-  # Computes Coefficient of Variation of the Root Mean Squared Error (CVRMSE) 
-  # between two vectors according to ASHRAE guideline 14.
+  # Function to compute the Coefficient of Variation of the 
+  # Root Mean Squared Error (CVRMSE) between two vectors 
+  # according to ASHRAE guideline 14.
   #
   # Args:
   #   sim: Vector containing the predicted output.
@@ -33,8 +34,8 @@ cvrmse <- function(sim,obs){
 }
 
 nmbe <- function(sim,obs){
-  # Computes Normalized Mean Bias Error (NMBE) between two vectors according 
-  # to ASHRAE guideline 14.
+  # Functin that computes the Normalized Mean Bias Error (NMBE) between 
+  # two vectors according to ASHRAE guideline 14.
   #
   # Args:
   #   sim: Vector containing the predicted output.
@@ -66,10 +67,10 @@ calc.distance <- function(x, alpha=2){
 }
 
 gasp.cov <- function(x, beta, lam){
-  # Generates the Gaussian process (GP) covariance matrix sigma
+  # Function to generates the Gaussian process (GP) covariance matrix sigma
   #
   # Args:
-  #   x: A numeric matrix (n x p)  
+  #   x: a numeric matrix (n x p)  
   #   beta: GP correlation hyperparameter
   #   lam: GP precision hyperparameter
   #
@@ -82,7 +83,7 @@ gasp.cov <- function(x, beta, lam){
   
   n <- nrow(x) # number of data
   # create distance structure containing pariwise distance computation for 
-  # each column (uses default value of alpha = 2)
+  # each column (default value of alpha = 2)
   d <- as.matrix(apply(x, 2, calc.distance)) 
   
   sigma <- matrix(data=0, nrow=n, ncol=n)
@@ -95,6 +96,36 @@ gasp.cov <- function(x, beta, lam){
 # Prediction Calculation ###########################################################
 
 y.pred <- function(x_pred, samples, params){
+  # Function to compute the predictions y at new (x_pred) values conditional 
+  # on the observed/measured data
+  #
+  # Args:
+  #   x_pred: design points to compute the predictions
+  #   samples: list containing the following
+  #     n: number of field data
+  #     m: number of computer simulation data
+  #     q: number of observable inputs x
+  #     p: number of calibration parameters t
+  #     y: field observations / measured data
+  #     eta: output of computer simulations
+  #     xf: observable inputs corresponding to y
+  #     (xc, tc): design points corresponding to eta
+  #   params: list containing posterior samples of the following parameters 
+  #     tf: calibration parameters      
+  #     beta_eta: correlation parameter for eta
+  #     beta_delta: correlation parameter for bias term
+  #     lambda_eta: precision parameter for eta
+  #     lambda_delta: precision parameter for bias term
+  #     lambda_e: precision parameter for observation errors
+  #
+  # Returns:
+  #     y_pred: predictions for x_pred sampled from mvrnorm where
+  #     c(y, eta, y_pred) ~ N(0, sigma_y_pred)
+  #     sigma_y_pred = sigma_eta + ...
+  #     | sigma_b    0    sigma_bb*  | +  | sigma_e   0     0     |
+  #     |    0       0        0      |    |   0       0     0     |
+  #     | sigma_b*b  0    sigma_b*   |    |   0       0     0     |
+  
   cat('starting run \n')
   q <- params$q
   p <- params$p
@@ -121,7 +152,8 @@ y.pred <- function(x_pred, samples, params){
   lambda_eta <- samples$lambda_eta
   lambda_delta <- samples$lambda_delta
   lambda_e <- samples$lambda_e
-  # Number of realizations at which to evaluate E{eta(x_pred,theta)|y,.}
+  
+  # Number of realizations at which to evaluate E{eta(x_pred,tf)|y,.}
   numrealize <- length(lambda_e)
   
   # Number of predictions
@@ -137,15 +169,15 @@ y.pred <- function(x_pred, samples, params){
   idxy <- c((1:n),(nm+1):(nm+npred))
   
   # storage
-  y_pred <- array(data=NA, dim=c(numrealize,npred)) # eta + delta
+  y_pred <- array(data=NA, dim=c(numrealize, npred)) # eta + delta
   
   
   for (I in (1:numrealize)){
     cat('simulation ',I,' of ',numrealize,'\n')
     
-    z[1:n,(p+1):(p+q)] <- as.matrix(rep.row(tf[I,],n))
+    z[1:n, (p+1):(p+q)] <- as.matrix(rep.row(tf[I,], n))
     xtpred <- cbind(as.matrix(x_pred),
-                    rep.row(tf[I,],npred))
+                    rep.row(tf[I,], npred))
     
     # Compile design points and prediction points from computer experiments
     Z <- rbind(z,as.matrix(xtpred))
@@ -189,10 +221,10 @@ y.pred <- function(x_pred, samples, params){
     s12 <- sigma_y_pred[1:nm, (nm+1):ncol(sigma_y_pred)]
     
     # Evaluate E{y(x_pred)|y,.} = s21 s11{-1} y
-    s11y <- solve(s11, c(y,eta))
+    s11y <- solve(s11, c(y, eta))
     E <- s21 %*% s11y
     
-    # Evaluate COV{y(x_pred,theta)|y,.} = s22 - s21 s11{-1} s12
+    # Evaluate COV{y(x_pred, tf)|y,.} = s22 - s21 s11{-1} s12
     s11s12 <- solve(s11, s12)
     s21s11s12 <- s21 %*% s11s12
     C <- s22 - s21s11s12
@@ -206,19 +238,7 @@ y.pred <- function(x_pred, samples, params){
 }
 
 eta.pred <- function(x_pred, samples, params){
-  # Generates the Gaussian process (GP) covariance matrix sigma
-  #
-  # Args:
-  #   x_pred: A numeric matrix (n x p)  
-  #   samples: GP correlation hyperparameter
-  #   params: list containing
-  #
-  # Returns:
-  #   GP covariance matrix sigma (n x n)
-  #   sigma = 1/lam exp{-sum_{k=1:p} beta(k)*(x(k)-x'(k))^2} 
-  #   where
-  #   n: number of rows in x
-  #   p: number of columns in x
+
   cat('starting run \n')
   q <- params$q
   p <- params$p
