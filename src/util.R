@@ -122,9 +122,9 @@ y.pred <- function(x_pred, samples, params){
   #     y_pred: predictions for x_pred sampled from mvrnorm where
   #     c(y, eta, y_pred) ~ N(0, sigma_y_pred)
   #     sigma_y_pred = sigma_eta + ...
-  #     | sigma_b    0    sigma_bb*  | +  | sigma_e   0     0     |
-  #     |    0       0        0      |    |   0       0     0     |
-  #     | sigma_b*b  0    sigma_b*   |    |   0       0     0     |
+  #     | sigma_b    0    sigma_bb* | +  | sigma_e   0     0  |
+  #     |    0       0        0     |    |   0       0     0  |
+  #     | sigma_b*b  0    sigma_b*  |    |   0       0     0  |
   
   cat('starting run \n')
   q <- params$q
@@ -238,6 +238,35 @@ y.pred <- function(x_pred, samples, params){
 }
 
 eta.pred <- function(x_pred, samples, params){
+  # Function to compute the predictions eta (y - delta) at new (x_pred) values 
+  # conditional on the observed/measured data
+  #
+  # Args:
+  #   x_pred: design points to compute the predictions
+  #   samples: list containing the following
+  #     n: number of field data
+  #     m: number of computer simulation data
+  #     q: number of observable inputs x
+  #     p: number of calibration parameters t
+  #     y: field observations / measured data
+  #     eta: output of computer simulations
+  #     xf: observable inputs corresponding to y
+  #     (xc, tc): design points corresponding to eta
+  #   params: list containing posterior samples of the following parameters 
+  #     tf: calibration parameters      
+  #     beta_eta: correlation parameter for eta
+  #     beta_delta: correlation parameter for bias term
+  #     lambda_eta: precision parameter for eta
+  #     lambda_delta: precision parameter for bias term
+  #     lambda_e: precision parameter for observation errors
+  #
+  # Returns:
+  #     y_pred: predictions for x_pred sampled from mvrnorm where
+  #     c(y, eta, y_pred) ~ N(0, sigma_eta_pred)
+  #     sigma_eta_pred = sigma_eta + ...
+  #     | sigma_b   0   sigma_bb* | +  | sigma_e   0     0  |
+  #     |     0     0       0     |    |   0       0     0  |
+  #     |     0     0       0     |    |   0       0     0  |
 
   cat('starting run \n')
   q <- params$q
