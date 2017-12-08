@@ -1,4 +1,5 @@
 library(rstan)
+source("util.R")
 
 # read in field and computer simulation data
 DATACOMP <- read.csv("DATACOMP.csv", header = TRUE)
@@ -53,10 +54,17 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
 # run model in stan
+# To run without predictive inferenec, comment lines 58-61 and 
+# uncomment lines 63-66
 fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 
-            chains = 2)
+            chains = 3)
+
+#fit <- stan(file = "bcWithoutPred.stan",
+#            data = stan_data,
+#            iter = 500,
+#            chains = 3)
 
 # plot traceplots, excluding warm-up
 stan_trace(fit, pars = c("tf", "beta_eta", "beta_delta", 
@@ -70,9 +78,13 @@ print(fit, pars = c("tf", "beta_eta", "beta_delta",
 stan_hist(fit, pars = c("tf"))
 
 # extract predictions, excluding warm-up and 
-# convert back to original scale
 samples <- rstan::extract(fit)
+
+# convert back to original scale
 y_pred <- samples$y_pred * eta_sd + eta_mu 
+y_pred <- y.pred(x_pred, samples, params = stan_data)
+
+
 n_samples <- nrow(y_pred)
 
 # for loop to visualize predictions at different input x

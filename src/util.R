@@ -66,6 +66,14 @@ calc.distance <- function(x, alpha=2){
   return(dist_lower)
 }
 
+gen.dist <- function(x){
+  n <- nrow(x) # number of data
+  # create distance structure containing pariwise distance computation for 
+  # each column (default value of alpha = 2)
+  d <- apply(x, 2, calc.distance, alpha=2)
+  return(list(n=n,d=as.matrix(d)))
+}
+
 gasp.cov <- function(x, beta, lam){
   # Function to generates the Gaussian process (GP) covariance matrix sigma
   #
@@ -143,9 +151,6 @@ y.pred <- function(x_pred, samples, params){
   z[(n+1):nm, 1:p] <- as.matrix(xc)
   z[(n+1):nm, (p+1):pq] <- as.matrix(tc)
   
-  # distance structure corresponding to xf
-  distx <- gen.dist(xf)
-  
   tf <- samples$tf
   beta_eta <- samples$beta_eta
   beta_delta <- samples$beta_delta
@@ -181,25 +186,16 @@ y.pred <- function(x_pred, samples, params){
     
     # Compile design points and prediction points from computer experiments
     Z <- rbind(z,as.matrix(xtpred))
-    # Get distance structure corresponding to Z
-    distZ <- gen.dist(Z)
     # Evaluate sigma_eta
-    sigma_eta <- gasp.cov(distZ, beta_eta[I,], lambda_eta[I])
+    sigma_eta <- gasp.cov(Z, beta_eta[I,], lambda_eta[I])
     # Evaluate sigma_b
-    sigma_b <- gasp.cov(distx, beta_delta[I,], lambda_delta[I])
+    sigma_b <- gasp.cov(xf, beta_delta[I,], lambda_delta[I])
     
-    # Compile dsign points xf and prediction points x_pred for y
-    if(p==1){
-      X <- c(xf,x_pred)
-      # Get distance structure corresponding to X
-      distX <- list(n=length(X),d=as.matrix(calc.distance(X,2)))
-    }else{
-      X <- rbind(xf,x_pred)
-      distX <- gen.dist(X)
-    }
+    # Compile design points xf and prediction points x_pred for y
+    X <- if (p==1) c(xf, x_pred) else rbind(xf, x_pred)
     
     # Evaluate sigma_B
-    sigma_B <- gasp.cov(distX, beta_delta[I,], lambda_delta[I])
+    sigma_B <- gasp.cov(X, beta_delta[I,], lambda_delta[I])
     
     # Evaluate sigma_e
     sigma_e <- diag(n) * (1 / lambda_e[I])
@@ -285,9 +281,6 @@ eta.pred <- function(x_pred, samples, params){
   z[(n+1):nm, 1:p] <- as.matrix(xc)
   z[(n+1):nm, (p+1):pq] <- as.matrix(tc)
   
-  # distance structure corresponding to xf
-  distx <- gen.dist(xf)
-  
   tf <- samples$tf
   beta_eta <- samples$beta_eta
   beta_delta <- samples$beta_delta
@@ -324,25 +317,16 @@ eta.pred <- function(x_pred, samples, params){
     
     # Compile design points and prediction points from computer experiments
     Z <- rbind(z,as.matrix(xtpred))
-    # Get distance structure corresponding to Z
-    distZ <- gen.dist(Z)
     # Evaluate sigma_eta
-    sigma_eta <- gasp.cov(distZ,beta_eta[I,],lambda_eta[I])
+    sigma_eta <- gasp.cov(Z,beta_eta[I,],lambda_eta[I])
     # Evaluate sigma_b
-    sigma_b <- gasp.cov(distx,beta_delta[I,],lambda_delta[I])
+    sigma_b <- gasp.cov(xf,beta_delta[I,],lambda_delta[I])
     
     # Compile dsign points xf and prediction points x_pred for y
-    if(p==1){
-      X <- c(xf,x_pred)
-      # Get distance structure corresponding to X
-      distX <- list(n=length(X),d=as.matrix(calc.distance(X,2)))
-    }else{
-      X <- rbind(xf,x_pred)
-      distX <- gen.dist(X)
-    }
+    X <- if (p==1) c(xf, x_pred) else rbind(xf, x_pred)
     
     # Evaluate sigma_B
-    sigma_B <- gasp.cov(distX,beta_delta[I,],lambda_delta[I])
+    sigma_B <- gasp.cov(X, beta_delta[I,], lambda_delta[I])
     
     # Evaluate sigma_e
     sigma_e <- diag(n) * (1/lambda_e[I])
