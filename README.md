@@ -31,7 +31,7 @@ Main files
 
 ## Contact
 
-If you need to get in touch for information about the code or its usage, you may drop us an [email](bdgczma@nus.edu.sg).
+If you need to get in touch for information about the code or its usage, you may drop us an [email](mailto:bdgczma@nus.edu.sg).
 
 
 
