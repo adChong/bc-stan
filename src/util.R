@@ -1,4 +1,5 @@
 library(fields)
+library(MASS)
 # duplicate functions ###########################################################
 
 rep.row <- function(x, n){
