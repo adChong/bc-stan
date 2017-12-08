@@ -85,7 +85,6 @@ samples <- rstan::extract(fit)
 y_pred <- samples$y_pred * eta_sd + eta_mu 
 #y_pred <- y.pred(x_pred, samples, stan_data) * eta_sd + eta_mu 
 
-
 n_samples <- nrow(y_pred)
 
 # for loop to visualize predictions at different input x

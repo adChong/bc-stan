@@ -162,20 +162,19 @@ y.pred <- function(x_pred, samples, params){
   # Number of realizations at which to evaluate E{eta(x_pred,tf)|y,.}
   numrealize <- length(lambda_e)
   
-  # Number of predictions
-  if(p==1){
-    npred <- length(x_pred)
-    xx <- 1
+  if (p==1){
+    n_pred <- length(x_pred)
+    X <- c(xf, x_pred)
   }else{
-    npred <- nrow(x_pred)
-    xx <- ncol(x_pred)
+    n_pred <- nrow(x_pred)
+    X <- rbind(xf, x_pred)
   }
   
   # Index of y values
-  idxy <- c((1:n),(nm+1):(nm+npred))
+  idxy <- c((1:n),(nm+1):(nm+n_pred))
   
   # storage
-  y_pred <- array(data=NA, dim=c(numrealize, npred)) # eta + delta
+  y_pred <- array(data=NA, dim=c(numrealize, n_pred)) # eta + delta
   
   
   for (I in (1:numrealize)){
@@ -183,7 +182,7 @@ y.pred <- function(x_pred, samples, params){
     
     z[1:n, (p+1):(p+q)] <- as.matrix(rep.row(tf[I,], n))
     xtpred <- cbind(as.matrix(x_pred),
-                    rep.row(tf[I,], npred))
+                    rep.row(tf[I,], n_pred))
     
     # Compile design points and prediction points from computer experiments
     Z <- rbind(z,as.matrix(xtpred))
@@ -191,9 +190,6 @@ y.pred <- function(x_pred, samples, params){
     sigma_eta <- gasp.cov(Z, beta_eta[I,], lambda_eta[I])
     # Evaluate sigma_b
     sigma_b <- gasp.cov(xf, beta_delta[I,], lambda_delta[I])
-    
-    # Compile design points xf and prediction points x_pred for y
-    X <- if (p==1) c(xf, x_pred) else rbind(xf, x_pred)
     
     # Evaluate sigma_B
     sigma_B <- gasp.cov(X, beta_delta[I,], lambda_delta[I])
@@ -292,38 +288,36 @@ eta.pred <- function(x_pred, samples, params){
   # Number of realizations at which to evaluate E{eta(x_pred,theta)|y,.}
   num_realize <- length(lambda_e)
   
-  # Number of predictions
-  if(p==1){
-    npred <- length(x_pred)
-    xx <- 1
+  if (p==1){
+    n_pred <- length(x_pred)
+    X <- c(xf, x_pred)
   }else{
-    npred <- nrow(x_pred)
-    xx <- ncol(x_pred)
+    n_pred <- nrow(x_pred)
+    X <- rbind(xf, x_pred)
   }
   
   # Index of y values
-  idxy <- c((1:n),(nm+1):(nm+npred))
+  idxy <- c((1:n), (nm+1):(nm+n_pred))
   
   # storage
-  eta_pred <- array(data=NA, dim=c(numrealize,npred)) # eta 
-  y_pred <- array(data=NA, dim=c(numrealize,npred)) # eta + delta
-  
+  eta_pred <- array(data=NA, dim=c(numrealize, n_pred)) # eta 
+  y_pred <- array(data=NA, dim=c(numrealize, n_pred)) # eta + delta
   
   for (I in (1:numrealize)){
-    cat('simulation ',I,' of ',numrealize,'\n')
+    cat('simulation ', I, ' of ', numrealize,'\n')
     
-    z[1:n,(p+1):(p+q)] <- as.matrix(rep.row(tf[I,],n))
+    z[1:n, (p+1):(p+q)] <- as.matrix(rep.row(tf[I,], n))
     xtpred <- cbind(as.matrix(x_pred),
-                    rep.row(tf[I,],npred))
+                    rep.row(tf[I,], n_pred))
     
     # Compile design points and prediction points from computer experiments
     Z <- rbind(z,as.matrix(xtpred))
     # Evaluate sigma_eta
-    sigma_eta <- gasp.cov(Z,beta_eta[I,],lambda_eta[I])
+    sigma_eta <- gasp.cov(Z,beta_eta[I,], lambda_eta[I])
     # Evaluate sigma_b
-    sigma_b <- gasp.cov(xf,beta_delta[I,],lambda_delta[I])
+    sigma_b <- gasp.cov(xf,beta_delta[I,], lambda_delta[I])
     
-    # Compile dsign points xf and prediction points x_pred for y
+
     X <- if (p==1) c(xf, x_pred) else rbind(xf, x_pred)
     
     # Evaluate sigma_B
