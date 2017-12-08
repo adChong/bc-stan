@@ -54,8 +54,9 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
 # run model in stan
-# To run without predictive inferenec, comment lines 58-61 and 
-# uncomment lines 63-66
+# To run without predictive inferenec: 
+# comment lines 58-61 and 85
+# uncomment lines 63-66 and 86
 fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 
@@ -80,9 +81,9 @@ stan_hist(fit, pars = c("tf"))
 # extract predictions, excluding warm-up and 
 samples <- rstan::extract(fit)
 
-# convert back to original scale
+# get predictive inference y_pred and convert back to original scale
 y_pred <- samples$y_pred * eta_sd + eta_mu 
-y_pred <- y.pred(x_pred, samples, params = stan_data)
+#y_pred <- y.pred(x_pred, samples, stan_data) * eta_sd + eta_mu 
 
 
 n_samples <- nrow(y_pred)
