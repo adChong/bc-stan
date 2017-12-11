@@ -55,8 +55,8 @@ options(mc.cores = parallel::detectCores())
 
 # run model in stan
 # To run without predictive inferenec: 
-# comment lines 58-61 and 85
-# uncomment lines 63-66 and 86
+# comment lines 60-63 and 85
+# uncomment lines 65-68 and 86
 fit <- stan(file = "bcWithPred.stan", 
             data = stan_data, 
             iter = 500, 

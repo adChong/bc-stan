@@ -25,7 +25,9 @@ Main files
 3. [bcWithPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithPred.R): Stan model for Bayesian calibration of building energy models with predictive inferences.
 4. [bcWithoutPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithoutPred.R): Stan model for Bayesian calibration of building energy models without predictive inferences.
 
+To run Bayesian calibration with predictive inference in Stan, run main.R or main.py as is.
 
+To run Bayesian calibration with predictive inference outside of Stan, comment lines 60-63 and line 85 and uncomment lines 65-68 and line 86 in main.R.
 
 ## Documentation
 
