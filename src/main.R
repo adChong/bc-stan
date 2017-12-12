@@ -19,7 +19,7 @@ xc <- DATACOMP[,2:(1+p)] # simulation input
 tc <- DATACOMP[,(2+p):(1+p+q)] # calibration parameters
 
 x_pred <- xf # design points for predictions
-n_pred <- nrow(x_pred) # design points for predictions
+n_pred <- nrow(x_pred) # number of predictions
 
 # standardization of output y and eta
 eta_mu <- mean(eta, na.rm = TRUE) # mean value
