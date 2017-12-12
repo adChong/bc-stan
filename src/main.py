@@ -1,7 +1,6 @@
 import numpy as np 
 import pystan as ps
 import pickle as pk
-import pandas as pd
 from matplotlib import pyplot as plt 
 
 # read in field and computer simulation data
