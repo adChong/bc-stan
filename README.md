@@ -23,6 +23,7 @@ To run Bayesian calibration with predictive inference in Stan, run [main.R](http
 To run Bayesian calibration with predictive inference outside of Stan, comment lines 60-63 and line 85 and uncomment lines 65-68 and line 86 in [main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R).
 
 ## Documentation
+Detailed description of this code can be found in [Chong and Menberg (2018)](https://doi.org/10.1016/j.enbuild.2018.06.028)
 
 ## Contact
 
