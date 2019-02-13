@@ -1,7 +1,8 @@
 # bc-stan
 
-## Documentation
-Detailed description of this code can be found in [Chong and Menberg (2018)](https://doi.org/10.1016/j.enbuild.2018.06.028)
+## Publications
+1. Detailed description of this code can be found in [Chong and Menberg (2018)](https://doi.org/10.1016/j.enbuild.2018.06.028)
+2. Application case study of Bayesian calibration [Chong et. al (2017)](https://doi.org/10.1016/j.enbuild.2017.08.069)
 
 ## Description
 bc-stan provides code for the Bayesian calibration of Building Energy Models using the Stan modeling language. The stan code is based on [Kennedy and O'Hagan's (2001)](http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00294/abstract) Bayesian calibration framework and follows the statistical approach described in [Higdon et. al. (2004)](http://epubs.siam.org/doi/abs/10.1137/S1064827503426693).
