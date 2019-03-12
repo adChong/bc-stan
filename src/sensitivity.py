@@ -51,6 +51,7 @@ class MorrisBem():
             - `mu_star_conf` - the bootstrapped confidence interval
             - `names` - the names of the parameters
         """
+        
         self.si = analyze(self.problem, self.X, y,
                           num_levels=self.num_levels)
         return self.si
