@@ -1,22 +1,22 @@
 from abc import abstractmethod
 from eppy.modeleditor import IDF
 
+
 def equal(a, b):
     try:
         return a.upper() == b.upper()
     except AttributeError:
         return a == b
 
+
 class UtilIdf():
 
     def __init__(self, idf):
         self.idf = idf
 
-
     @abstractmethod
     def copy(self):
         pass
-
 
     @abstractmethod
     def mod(self, obj_id, obj_name, field, value):
@@ -29,7 +29,6 @@ class UtilIdf():
         :return:
         """
         pass
-
 
     @abstractmethod
     def get_output(self):
@@ -55,7 +54,10 @@ class EppyUtilIdf(UtilIdf):
         idf = self.copy(self.idf)
         obj_lst = idf.idfobjects[obj_id]
         for obj in obj_lst:
-            if obj_name == obj.Name or obj_name == 'ALL':
+            if not obj_name:
+                obj[field] = value
+                break
+            elif obj_name == obj.Name or obj_name == 'ALL':
                 obj[field] = value
         return idf
 
