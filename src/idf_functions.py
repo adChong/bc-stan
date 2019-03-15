@@ -9,7 +9,7 @@ def equal(a, b):
         return a == b
 
 
-class UtilIdf():
+class UtilIdf:
 
     def __init__(self, idf):
         self.idf = idf
@@ -42,6 +42,7 @@ class UtilIdf():
 class EppyUtilIdf(UtilIdf):
 
     def copy(self):
+
         idf_txt = self.idf.idfstr()
         try:
             idf_copy = IDF(epw=getattr(self.idf, 'epw'))
@@ -51,17 +52,21 @@ class EppyUtilIdf(UtilIdf):
         return idf_copy
 
     def mod(self, obj_id, obj_name, field, value):
-        idf = self.copy(self.idf)
+
+        idf = self.copy(self.idf) # copy file to prevent modifying same idf
         obj_lst = idf.idfobjects[obj_id]
+
         for obj in obj_lst:
             if not obj_name:
                 obj[field] = value
                 break
             elif obj_name == obj.Name or obj_name == 'ALL':
                 obj[field] = value
+
         return idf
 
     def get_output(self, html_tbls, arg_lst):
+
         if not arg_lst:
             return None
         elif len(arg_lst) == 1:
