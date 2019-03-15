@@ -95,7 +95,7 @@ class MorrisEppy(MorrisBem):
         util = EppyUtilIdf(self.idf)
         idf_lst = []
         file_dir = os.path.dirname(__file__)
-        output_folder = os.path.join(file_dir, 'results')
+        output_folder = os.path.join(file_dir, 'sensitivity_results')
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
