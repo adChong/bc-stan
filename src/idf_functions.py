@@ -3,6 +3,12 @@ from eppy.modeleditor import IDF
 
 
 def equal(a, b):
+    """
+
+    :param a: string a
+    :param b: string b
+    :return: check if string a equals string b ignoring character case
+    """
     try:
         return a.upper() == b.upper()
     except AttributeError:
@@ -11,22 +17,23 @@ def equal(a, b):
 
 class UtilIdf:
 
-    def __init__(self, idf):
-        self.idf = idf
-
     @abstractmethod
-    def copy(self):
+    def copy(self, idf):
+        """
+
+        :param idf: EnergyPlus idf to be copied
+        :return: a copy of the EnergyPlus idf
+        """
         pass
 
     @abstractmethod
-    def mod(self, obj_id, obj_name, field, value):
+    def mod(self, idf, obj_id, obj_name, field, value):
         """
-
+        modifies an EnergyPlus IDF in place
         :param obj_id: object ID used to identify EnergyPlus object
         :param obj_name: name of idf object
-        :param field: name of field to be modified
+        :param field: field to be modified
         :param value: value of idf obj to modify to
-        :return:
         """
         pass
 
@@ -34,36 +41,35 @@ class UtilIdf:
     def get_output(self):
         """
 
-        :return: model output of dtype=float
+        :return: model output of dtype=float that would be used
+                for the sensitivity analysis
         """
         pass
 
 
 class EppyUtilIdf(UtilIdf):
 
-    def copy(self):
+    def copy(self, idf):
 
-        idf_txt = self.idf.idfstr()
+        idf_txt = idf.idfstr()
         try:
-            idf_copy = IDF(epw=getattr(self.idf, 'epw'))
+            idf_copy = IDF(epw=getattr(idf, 'epw'))
         except AttributeError:
             idf_copy = IDF()
         idf_copy.initreadtxt(idf_txt)
         return idf_copy
 
-    def mod(self, obj_id, obj_name, field, value):
+    def mod(self, idf, obj_id, obj_name, field, value):
 
-        idf = self.copy(self.idf) # copy file to prevent modifying same idf
-        obj_lst = idf.idfobjects[obj_id]
+        # modification done in place
+        obj_lst = idf.idfobjects[obj_id.upper()]
 
         for obj in obj_lst:
             if not obj_name:
                 obj[field] = value
                 break
-            elif obj_name == obj.Name or obj_name == 'ALL':
+            elif obj_name == obj.Name:
                 obj[field] = value
-
-        return idf
 
     def get_output(self, html_tbls, arg_lst):
 
