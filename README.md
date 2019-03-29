@@ -36,7 +36,7 @@ To run Bayesian calibration with predictive inference outside of Stan, comment l
 
 ## Parameter screening (Morris Method)
 
-
+The Python code for parameter screening is based on [Morris (1991)](http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00294) and implemented using the SALib python library.
 
 ### Usage
 
