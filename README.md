@@ -27,6 +27,23 @@ To run Bayesian calibration with predictive inference in Stan, run [main.R](http
 
 To run Bayesian calibration with predictive inference outside of Stan, comment lines 60-63 and line 85 and uncomment lines 65-68 and line 86 in [main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R).
 
+# Parameter screening (Morris Method)
+
+## Description
+
+## Usage
+
+Main files
+1. [sensitivity.py](https://github.com/adChong/bc-stan/blob/master/src/sensitivity.py): Python class for Morris method with E+ idf
+2. [idf_functions.py](https://github.com/adChong/bc-stan/blob/master/src/idf_functions.py): Python class containing functions to modify E+ idf
+
+
+## Prerequisites
+
+Install eppy and SALib and their respective dependencies.
+* eppy (scripting language for E+ idf files): https://pythonhosted.org/eppy/index.html
+* SALib (Python library containing commonly used sensitivity analysis methods): https://salib.readthedocs.io
+
 ## Contact
 
 If you need to get in touch for information about the code or its usage, you may drop us an [email](mailto:bdgczma@nus.edu.sg).
