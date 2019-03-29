@@ -4,7 +4,7 @@
 bc-stan provides code for:
 
 1. [Bayesian calibration of Building Energy Models using the Stan modeling language](#Bayesian-calibration-of-energy-models-using-Stan)
-2. [Parameter screening with Morris method](#Parameter-screening-(Morris-Method))
+2. [Parameter screening with Morris method](#Parameter-screening-using-Morris-method)
 
 ## Related Publications
 1. Detailed description of this code can be found in [Chong and Menberg (2018)](https://doi.org/10.1016/j.enbuild.2018.06.028)
@@ -34,7 +34,7 @@ To run Bayesian calibration with predictive inference in Stan, run [main.R](http
 
 To run Bayesian calibration with predictive inference outside of Stan, comment lines 60-63 and line 85 and uncomment lines 65-68 and line 86 in [main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R).
 
-## Parameter screening (Morris Method)
+## Parameter screening using Morris method
 
 The Python code for parameter screening is based on [Morris (1991)](http://onlinelibrary.wiley.com/doi/10.1111/1467-9868.00294) and implemented using the SALib python library.
 
