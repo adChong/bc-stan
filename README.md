@@ -27,8 +27,8 @@ Install Stan and its required dependencies.
 Main files
 1. [main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R): R interface for running Stan model
 2. [main.py](https://github.com/adChong/bc-stan/blob/master/src/main.py): Python interface for running Stan model
-3. [bcWithPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithPred.R): Stan model for Bayesian calibration of building energy models with predictive inferences.
-4. [bcWithoutPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithoutPred.R): Stan model for Bayesian calibration of building energy models without predictive inferences.
+3. [bcWithPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithPred.stan): Stan model for Bayesian calibration of building energy models with predictive inferences.
+4. [bcWithoutPred.stan](https://github.com/adChong/bc-stan/blob/master/src/bcWithoutPred.stan): Stan model for Bayesian calibration of building energy models without predictive inferences.
 
 To run Bayesian calibration with predictive inference in Stan, run [main.R](https://github.com/adChong/bc-stan/blob/master/src/main.R) or [main.py](https://github.com/adChong/bc-stan/blob/master/src/main.py) as is.
 
