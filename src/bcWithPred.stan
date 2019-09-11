@@ -6,26 +6,27 @@ data {
   int<lower=1> q; // number of calibration parameters t
   vector[n] y; // field observations
   vector[m] eta; // output of computer simulations
-  matrix[n, p] xf; // observable inputs corresponding to y
+  row_vector[p] xf[n]; // observable inputs corresponding to y
   // (xc, tc): design points corresponding to eta
-  matrix[m, p] xc; 
-  matrix[m, q] tc; 
-  // x_pred: new design points for predictions
-  matrix[n_pred, p] x_pred; 
+  row_vector[p] xc[m]; 
+  row_vector[q] tc[m]; 
+  row_vector[p] x_pred[n_pred]; 
 }
 
 transformed data {
+  real delta = 1e-9;
   int<lower = 1> N;
   vector[n+m] y_eta;
   vector[n+m+n_pred] mu; // mean vector
-  matrix[n+n_pred, p] X; // X=[xf, x_pred]
+  row_vector[p] X[n+n_pred]; // X=[xf, x_pred]
   
   N = n + m + n_pred;
   // set mean vector to zero
   for (i in 1:N) {
     mu[i] = 0;
   }
-  X = append_row(xf, x_pred);
+  X[1:n] = xf;
+  X[n+1:(n+n_pred)] = x_pred;
   y_eta = append_row(y, eta); // y_eta = [y, eta]
 }
 
@@ -51,57 +52,52 @@ transformed parameters {
   // beta_e: correlation parameter of observation error
   row_vector[p+q] beta_eta;
   row_vector[p] beta_delta;
+  row_vector[p+q] xt[N]; 
   beta_eta = -4.0 * log(rho_eta);
   beta_delta = -4.0 * log(rho_delta);
+  // xt = [[xf,tf],[xc,tc],[x_pred,tf]]
+  for (i in 1:n) {
+	xt[i] = append_col(xf[i],tf);
+  }
+  for (i in (n+1):(n+m)) {
+	xt[i] = append_col(xc[i-n],tc[i-n]);
+  }
+  for (i in (n+m+1):N) {
+	xt[i] = append_col(x_pred[i-n-m],tf);
+  }
 }
 
 model {
   // declare variables
-  matrix[N, p+q] xt; 
+  vector[N] z; // z = [y, eta, y_pred]
   matrix[N, N] sigma_eta; // simulator covarinace
   matrix[n+n_pred, n+n_pred] sigma_delta; // bias term covariance
   matrix[N, N] sigma_z; // covariance matrix
   matrix[N, N] L; // cholesky decomposition of covariance matrix 
-  vector[N] z; // z = [y, eta, y_pred]
   row_vector[p] temp_delta;
   row_vector[p+q] temp_eta;
-
-  z = append_row(y_eta, y_pred); // z = [y, eta, y_pred]
-
-  // xt = [[xf,tf],[xc,tc],[x_pred,tf]]
-  xt[1:n, 1:p] = xf;
-  xt[1:n, (p+1):(p+q)] = rep_matrix(tf, n);
-  xt[(n+1):(n+m), 1:p] = xc;
-  xt[(n+1):(n+m), (p+1):(p+q)] = tc;
-  xt[(n+m+1):N, 1:p] = x_pred;
-  xt[(n+m+1):N, (p+1):(p+q)] = rep_matrix(tf, n_pred);
   
-  // diagonal elements of sigma_eta
-  sigma_eta = diag_matrix(rep_vector((1 / lambda_eta), N));
-
-  // off-diagonal elements of sigma_eta
+  z = append_row(y_eta, y_pred); // z = [y, eta, y_pred]
+  
+  // elements of sigma_eta
   for (i in 1:(N-1)) {
+	sigma_eta[i, i] = 1/lambda_eta + delta;
     for (j in (i+1):N) {
-      temp_eta = xt[i] - xt[j];
-      sigma_eta[i, j] = beta_eta .* temp_eta * temp_eta';
-      sigma_eta[i, j] = exp(-sigma_eta[i, j]) / lambda_eta;
+	  sigma_eta[i, j] = exp(-dot_self((xt[i] - xt[j]) .* beta_eta))/lambda_eta;
       sigma_eta[j, i] = sigma_eta[i, j];
     }
   }
-
-  // diagonal elements of sigma_delta
-  sigma_delta = diag_matrix(rep_vector((1 / lambda_delta), 
-    n+n_pred));
+  sigma_eta[N, N] = 1/lambda_eta + delta;
   
-  // off-diagonal elements of sigma_delta
+  // elements of sigma_delta and add observation errors
   for (i in 1:(n+n_pred-1)) {
-    for (j in (i+1):(n+n_pred)) {
-      temp_delta = X[i] - X[j];
-      sigma_delta[i, j] = beta_delta .* temp_delta * temp_delta';
-      sigma_delta[i, j] = exp(-sigma_delta[i, j]) / lambda_delta;
+	sigma_delta[i, i] = 1/lambda_delta;
+    for (j in (i+1):n+n_pred) {
+	  sigma_delta[i, j] = exp(-dot_self((X[i] - X[j]) .* beta_delta))/lambda_delta;
       sigma_delta[j, i] = sigma_delta[i, j];
-    }   
+    }
   }
+  sigma_delta[n+n_pred, n+n_pred] = 1/lambda_delta;
 
   // computation of covariance matrix sigma_z 
   sigma_z = sigma_eta;
@@ -116,12 +112,12 @@ model {
 
   // add observation errors
   for (i in 1:n) {
-    sigma_z[i, i] = sigma_z[i, i] + (1.0 / lambda_e);
+    sigma_z[i, i] = sigma_z[i, i] + (1 / lambda_e);
   }  
 
   // Specify priors here
-  rho_eta[1:(p+q)] ~ beta(1.0, 0.3);
-  rho_delta[1:p] ~ beta(1.0, 0.3);
+  rho_eta ~ beta(1.0, 0.3);
+  rho_delta ~ beta(1.0, 0.3);
   lambda_eta ~ gamma(10, 10); // gamma (shape, rate)
   lambda_delta ~ gamma(10, 0.3); 
   lambda_e ~ gamma(10, 0.03); 
