@@ -45,16 +45,8 @@ transformed parameters {
   // beta_e: correlation parameter of observation error
   row_vector[p+q] beta_eta;
   row_vector[p] beta_delta;
-  row_vector[p+q] xt[N];
   beta_eta = -4.0 * log(rho_eta);
   beta_delta = -4.0 * log(rho_delta);
-  // xt = [[xt,tf],[xc,tc]]
-  for (i in 1:n) {
-	  xt[i] = append_col(xf[i],tf);
-  }
-  for (i in (n+1):N) {
-	  xt[i] = append_col(xc[i-n],tc[i-n]);
-  }
 }
 
 model {
@@ -63,6 +55,15 @@ model {
   matrix[n, n] sigma_delta; // bias term covariance
   matrix[N, N] sigma_z; // covariance matrix
   matrix[N, N] L; // cholesky decomposition of covariance matrix 
+  row_vector[p+q] xt[N];
+
+  // xt = [[xt,tf],[xc,tc]]
+  for (i in 1:n) {
+    xt[i] = append_col(xf[i],tf);
+  }
+  for (i in (n+1):N) {
+    xt[i] = append_col(xc[i-n],tc[i-n]);
+  }
  
   // elements of sigma_eta
   for (i in 1:(N-1)) {
