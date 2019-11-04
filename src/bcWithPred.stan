@@ -52,19 +52,8 @@ transformed parameters {
   // beta_e: correlation parameter of observation error
   row_vector[p+q] beta_eta;
   row_vector[p] beta_delta;
-  row_vector[p+q] xt[N]; 
   beta_eta = -4.0 * log(rho_eta);
   beta_delta = -4.0 * log(rho_delta);
-  // xt = [[xf,tf],[xc,tc],[x_pred,tf]]
-  for (i in 1:n) {
-	xt[i] = append_col(xf[i],tf);
-  }
-  for (i in (n+1):(n+m)) {
-	xt[i] = append_col(xc[i-n],tc[i-n]);
-  }
-  for (i in (n+m+1):N) {
-	xt[i] = append_col(x_pred[i-n-m],tf);
-  }
 }
 
 model {
@@ -76,6 +65,18 @@ model {
   matrix[N, N] L; // cholesky decomposition of covariance matrix 
   row_vector[p] temp_delta;
   row_vector[p+q] temp_eta;
+  row_vector[p+q] xt[N]; 
+
+  // xt = [[xf,tf],[xc,tc],[x_pred,tf]]
+  for (i in 1:n) {
+    xt[i] = append_col(xf[i],tf);
+  }
+  for (i in (n+1):(n+m)) {
+    xt[i] = append_col(xc[i-n],tc[i-n]);
+  }
+  for (i in (n+m+1):N) {
+    xt[i] = append_col(x_pred[i-n-m],tf);
+  }
   
   z = append_row(y_eta, y_pred); // z = [y, eta, y_pred]
   
