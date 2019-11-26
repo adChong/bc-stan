@@ -4,7 +4,7 @@ functions {
                      row_vector tf, row_vector[] tc,
                      row_vector beta_eta, real lambda_eta,
                      row_vector beta_delta, real lambda_delta,
-                     real delta) {
+                     real sigma) {
     vector[n_pred] y_pred;
     {
       matrix[N,N] sigma_eta;  //sigma_eta + sigma_delta = sigma_z
@@ -35,13 +35,13 @@ functions {
 
 	  // Evaluate s11
       for (i in 1:(N-1)) {
-        sigma_eta[i, i] = 1/lambda_eta + delta;
+        sigma_eta[i, i] = 1/lambda_eta + sigma;
         for (j in (i+1):N) {
           sigma_eta[i, j] = exp(-dot_self((xt[i] - xt[j]) .* beta_eta))/lambda_eta;
           sigma_eta[j, i] = sigma_eta[i, j];
         }
       }
-      sigma_eta[N, N] = 1/lambda_eta + delta;
+      sigma_eta[N, N] = 1/lambda_eta + sigma;
 
       // elements of sigma_delta and add observation errors
       for (i in 1:(n-1)) {
@@ -82,13 +82,13 @@ functions {
 
 	  // Evaluate s22
       for (i in 1:(n_pred-1)) {
-        sigma_eta_pred[i, i] = 1/lambda_eta + delta;
+        sigma_eta_pred[i, i] = 1/lambda_eta + sigma;
         for (j in (i+1):n_pred) {
           sigma_eta_pred[i, j] = exp(-dot_self((xt_pred[i] - xt_pred[j]) .* beta_eta))/lambda_eta;
           sigma_eta_pred[j, i] = sigma_eta_pred[i, j];
         }
       }
-      sigma_eta_pred[n_pred, n_pred] = 1/lambda_eta + delta;
+      sigma_eta_pred[n_pred, n_pred] = 1/lambda_eta + sigma;
 
       for (i in 1:(n_pred-1)) {
         sigma_delta_pred[i, i] = 1/lambda_delta + 1e-9;
@@ -148,7 +148,7 @@ parameters {
   row_vector<lower=0,upper=1>[p] rho_delta;
   real<lower=0> lambda_eta; 
   real<lower=0> lambda_delta; 
-  real<lower=0> delta;
+  real<lower=0> sigma;
 }
 
 transformed parameters {
@@ -182,13 +182,13 @@ model {
 
   // elements of sigma_eta
   for (i in 1:(N-1)) {
-	  sigma_eta[i, i] = 1/lambda_eta + delta;
+	  sigma_eta[i, i] = 1/lambda_eta + sigma;
     for (j in (i+1):N) {
 	    sigma_eta[i, j] = exp(-dot_self((xt[i] - xt[j]) .* beta_eta))/lambda_eta;
       sigma_eta[j, i] = sigma_eta[i, j];
     }
   }
-  sigma_eta[N, N] = 1/lambda_eta + delta;
+  sigma_eta[N, N] = 1/lambda_eta + sigma;
 
   // elements of sigma_delta and add observation errors
   for (i in 1:(n-1)) {
@@ -209,17 +209,17 @@ model {
   rho_delta ~ beta(1.0, 0.3);
   lambda_eta ~ gamma(10, 10); // gamma (shape, rate)
   lambda_delta ~ gamma(10, 0.3);
-  delta ~ normal(0, 1);
+  sigma ~ normal(0, 1);
 
   L = cholesky_decompose(sigma_z); // cholesky decomposition
   z ~ multi_normal_cholesky(mu, L);
 }
 
 generated quantities {
-  vector[n_pred] f_pred = gp_pred_rng(n, N, n_pred, p, q, z, xf, xc, x_pred, tf, tc, beta_eta, lambda_eta, beta_delta, lambda_delta, delta);
+  vector[n_pred] f_pred = gp_pred_rng(n, N, n_pred, p, q, z, xf, xc, x_pred, tf, tc, beta_eta, lambda_eta, beta_delta, lambda_delta, sigma);
   vector[n_pred] y_pred;
   for (i in 1:n_pred) {
-    y_pred[i] = normal_rng(f_pred[i], delta);
+    y_pred[i] = normal_rng(f_pred[i], sigma);
   }
 } 
 
