@@ -14,7 +14,6 @@ data {
 }
 
 transformed data {
-  real delta = 1e-9;
   int<lower = 1> N;
   vector[n+m] y_eta;
   vector[n+m+n_pred] mu; // mean vector
@@ -81,23 +80,23 @@ model {
   
   // elements of sigma_eta
   for (i in 1:(N-1)) {
-	sigma_eta[i, i] = 1/lambda_eta + delta;
+	sigma_eta[i, i] = 1 + 1/lambda_eta;
     for (j in (i+1):N) {
 	  sigma_eta[i, j] = exp(-dot_self((xt[i] - xt[j]) .* beta_eta))/lambda_eta;
       sigma_eta[j, i] = sigma_eta[i, j];
     }
   }
-  sigma_eta[N, N] = 1/lambda_eta + delta;
+  sigma_eta[N, N] = 1 + 1/lambda_eta;
   
   // elements of sigma_delta and add observation errors
   for (i in 1:(n+n_pred-1)) {
-	sigma_delta[i, i] = 1/lambda_delta;
+	sigma_delta[i, i] = 1 + 1/lambda_delta;
     for (j in (i+1):n+n_pred) {
 	  sigma_delta[i, j] = exp(-dot_self((X[i] - X[j]) .* beta_delta))/lambda_delta;
       sigma_delta[j, i] = sigma_delta[i, j];
     }
   }
-  sigma_delta[n+n_pred, n+n_pred] = 1/lambda_delta;
+  sigma_delta[n+n_pred, n+n_pred] = 1 + 1/lambda_delta;
 
   // computation of covariance matrix sigma_z 
   sigma_z = sigma_eta;
